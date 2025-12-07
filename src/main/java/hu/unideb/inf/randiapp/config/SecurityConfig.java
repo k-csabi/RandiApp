@@ -29,16 +29,16 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
-    private final UserDetailsService userDetailsService; // Autowired helyett konstruktor injection
+    private final UserDetailsService userDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // CSRF kikapcsolása
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // <--- EZ A LÉNYEG! Itt kötjük be a CORS szabályokat
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // Regisztráció/Login szabad
-                        .anyRequest().authenticated() // Minden más zárt
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
@@ -47,17 +47,12 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // --- ITT ADJUK KI AZ ENGEDÉLYT A REACTNAK ---
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Engedélyezzük a Frontend címét:
         configuration.setAllowedOrigins(List.of("http://localhost:5173"));
-        // Engedélyezzük a metódusokat (GET, POST, stb.):
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        // Engedélyezzük a fejléceket (pl. Authorization a tokenhez):
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        // Engedélyezzük a hitelesítést:
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

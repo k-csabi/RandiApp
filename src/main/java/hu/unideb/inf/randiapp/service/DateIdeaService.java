@@ -48,7 +48,6 @@ public class DateIdeaService {
         DateIdea dateIdea = dateIdeaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Nem található"));
 
-        // Biztonsági ellenőrzés: Csak a SAJÁT ötletet törölhetjük!
         if (dateIdeaRepository.existsById(id)) {
             dateIdeaRepository.deleteById(id);
         } else {
@@ -63,12 +62,9 @@ public class DateIdeaService {
     }
 
     public void updateDate(Long id, DateIdeaDto dto) {
-        // Megkeressük az ötletet
         DateIdea dateIdea = dateIdeaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Nem található"));
 
-        // FELTÉTEL NÉLKÜLI SZERKESZTÉS:
-        // Bárki szerkesztheti, nem ellenőrizzük a tulajdonost.
         dateIdea.setTitle(dto.getTitle());
         dateIdea.setDescription(dto.getDescription());
         dateIdea.setTags(dto.getTags());

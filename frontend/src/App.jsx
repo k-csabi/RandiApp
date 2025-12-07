@@ -5,25 +5,21 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import api from './api';
 
-// Komponensek importálása
 import DateWheel from './components/DateWheel';
 import DateList from './components/DateList';
 import BucketList from './components/BucketList';
 import Profile from './components/Profile';
-import Journal from './components/Journal'; // Az új Napló komponens
+import Journal from './components/Journal';
 
-// Védett útvonal ellenőrzés
 const ProtectedRoute = ({ children }) => {
   const { token } = useContext(AuthContext);
   return token ? children : <Navigate to="/login" />;
 };
 
 const Dashboard = () => {
-  // Nézetek: 'dashboard' (főoldal), 'journal' (napló), 'profile' (profil)
   const [view, setView] = useState('dashboard');
   const [dates, setDates] = useState([]);
 
-  // Randik lekérése (kell a keréknek és a listának is)
   const fetchDates = async () => {
     try {
       const res = await api.get('/dates');
@@ -36,11 +32,9 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col font-sans">
 
-      {/* --- FEJLÉC ÉS MENÜ --- */}
       <nav className="bg-white shadow-md p-4 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
 
-          {/* Logó (kattintható, visszavisz a főoldalra) */}
           <h1
             className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-600 cursor-pointer hover:scale-105 transition"
             onClick={() => setView('dashboard')}
@@ -48,7 +42,6 @@ const Dashboard = () => {
             RandiApp ❤️
           </h1>
 
-          {/* Menü gombok */}
           <div className="flex gap-3">
             <button
               onClick={() => setView('dashboard')}
@@ -72,42 +65,35 @@ const Dashboard = () => {
         </div>
       </nav>
 
-      {/* --- FŐ TARTALOM --- */}
       <main className="flex-1 w-full p-4 max-w-[1600px] mx-auto overflow-hidden">
 
-        {/* 1. PROFIL NÉZET */}
         {view === 'profile' && (
           <div className="flex justify-center mt-6 animate-fade-in">
             <Profile />
           </div>
         )}
 
-        {/* 2. NAPLÓ NÉZET */}
         {view === 'journal' && (
           <div className="max-w-3xl mx-auto mt-6 h-[85vh] animate-fade-in">
             <Journal />
           </div>
         )}
 
-        {/* 3. FŐOLDAL (DASHBOARD) - 3 Oszlopos Grid */}
         {view === 'dashboard' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full animate-fade-in">
 
-            {/* BAL OSZLOP: Bakancslista */}
             <div className="order-2 lg:order-1 h-full">
               <div className="bg-white rounded-xl shadow-lg p-2 h-full max-h-[85vh] overflow-y-auto border border-gray-100">
                 <BucketList />
               </div>
             </div>
 
-            {/* KÖZÉPSŐ OSZLOP: Szerencsekerék */}
             <div className="order-1 lg:order-2 flex flex-col items-center justify-start">
                <div className="bg-white rounded-xl shadow-xl p-6 w-full flex flex-col items-center border border-gray-100 sticky top-4">
                  <DateWheel dates={dates} />
                </div>
             </div>
 
-            {/* JOBB OSZLOP: Randi Lista */}
             <div className="order-3 lg:order-3 h-full">
               <div className="bg-white rounded-xl shadow-lg p-4 h-full max-h-[85vh] overflow-y-auto border border-gray-100">
                  <div className="sticky top-0 bg-white z-10 pb-2 border-b mb-4">

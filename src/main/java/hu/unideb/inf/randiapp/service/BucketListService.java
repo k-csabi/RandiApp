@@ -25,12 +25,10 @@ public class BucketListService {
         return userRepository.findByEmail(email).orElseThrow();
     }
 
-    // LISTÁZÁS (DTO-val)
     public List<BucketListItemDto> getList() {
         User user = getCurrentUser();
         List<BucketListItem> items = bucketListRepository.findByCoupleId(user.getCouple().getId());
 
-        // Átalakítjuk DTO-vá, és beletesszük a nevet
         return items.stream().map(item -> new BucketListItemDto(
                 item.getId(),
                 item.getTitle(),
@@ -39,11 +37,10 @@ public class BucketListService {
         )).toList();
     }
 
-    // HOZZÁADÁS (Javítva + Név mentése)
     public void add(BucketListItem item) {
         User user = getCurrentUser();
         item.setCouple(user.getCouple());
-        item.setCreatedBy(user); // Elmentjük, hogy TE adtad hozzá
+        item.setCreatedBy(user);
         item.setCompleted(false);
         bucketListRepository.save(item);
     }

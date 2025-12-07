@@ -23,8 +23,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
-                user.getPassword(), // A titkosított jelszó
-                new ArrayList<>()   // Jogosultságok (most üres)
+                user.getPassword(),
+                new ArrayList<>()
         );
     }
 }

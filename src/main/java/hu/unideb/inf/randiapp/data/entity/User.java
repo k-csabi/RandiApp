@@ -11,7 +11,7 @@ import java.util.Collections;
 @Table(name = "app_users")
 @Data
 
-public class User implements UserDetails { // Implementáljuk a UserDetails-t a Security miatt
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,7 +29,6 @@ public class User implements UserDetails { // Implementáljuk a UserDetails-t a 
     @JoinColumn(name = "couple_id")
     private Couple couple;
 
-    // UserDetails kötelező metódusai
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.emptyList();

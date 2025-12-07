@@ -17,27 +17,21 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    // 1. A TITKOS KULCS. Ezzel írjuk alá a tokent.
-    // Ha ezt valaki megszerzi, hamisíthat belépőkártyát. (Élesben környezeti változóban tároljuk).
     private static final String SECRET_KEY = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
 
-    // Kinyeri a felhasználónevet (emailt) a tokenből
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    // Segédfüggvény adatok kinyeréséhez
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    // 2. Token generálása (A User adatiból)
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
     }
 
-    // A generálás logikája
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts.builder()
                 .setClaims(extraClaims)
@@ -48,7 +42,6 @@ public class JwtService {
                 .compact();
     }
 
-    // 4. Érvényes a token? (Jó a név és nem járt le?)
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);

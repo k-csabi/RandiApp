@@ -19,7 +19,6 @@ export default function BucketList() {
     if (!newItem.trim()) return;
     setLoading(true);
     try {
-      // Küldjük a címet
       await api.post('/bucketlist', { title: newItem });
       setNewItem('');
       await fetchItems();
@@ -69,17 +68,14 @@ export default function BucketList() {
           <li key={item.id} className="flex justify-between items-center p-3 border-b border-gray-100 hover:bg-gray-50 transition rounded group">
 
             <div className="flex items-center gap-3 cursor-pointer flex-1" onClick={() => toggle(item.id)}>
-              {/* Pipa */}
               <div className={`w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 ${item.completed ? 'bg-green-500 border-green-500' : 'border-gray-300'}`}>
                 {item.completed && <span className="text-white text-xs">✓</span>}
               </div>
 
-              {/* Szöveg és Név */}
               <div className="flex flex-col">
                   <span className={`text-md ${item.completed ? "line-through text-gray-400" : "text-gray-800"}`}>
                     {item.title}
                   </span>
-                  {/* ITT ÍRJUK KI A NEVET: */}
                   <span className="text-[10px] text-gray-400 uppercase font-bold">
                     {item.createdByName || "Ismeretlen"}
                   </span>
