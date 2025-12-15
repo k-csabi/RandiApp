@@ -1,14 +1,15 @@
 package hu.unideb.inf.randiapp.config;
 
 import hu.unideb.inf.randiapp.data.entity.User;
+import hu.unideb.inf.randiapp.data.repository.UserRepository;
 import hu.unideb.inf.randiapp.service.JwtService;
 import hu.unideb.inf.randiapp.service.impl.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
-import hu.unideb.inf.randiapp.data.repository.UserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,8 +28,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final UserRepository userRepository;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain
+    ) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
@@ -40,27 +44,35 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         jwt = authHeader.substring(7);
-        userEmail = jwtService.extractUsername(jwt);
 
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-            var optionalUser = userRepository.findByEmail(userEmail);
+        try {
+            userEmail = jwtService.extractUsername(jwt);
 
-            if (optionalUser.isPresent() && jwtService.isTokenValid(jwt, userDetails)) {
-                User dbUser = optionalUser.get();
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-                if (dbUser.getCurrentToken() == null || !dbUser.getCurrentToken().equals(jwt)) {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    return;
+                var optionalUser = userRepository.findByEmail(userEmail);
+
+                if (optionalUser.isPresent() && jwtService.isTokenValid(jwt, userDetails)) {
+                    User dbUser = optionalUser.get();
+
+                    boolean isTokenCurrent = dbUser.getCurrentToken() == null || dbUser.getCurrentToken().equals(jwt);
+
+                    if (isTokenCurrent) {
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
+                        );
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    }
                 }
-
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
+        } catch (Exception e) {
+            System.out.println("Token hiba (ez nem baj, csak lejárt/érvénytelen): " + e.getMessage());
         }
+
         filterChain.doFilter(request, response);
     }
 }
