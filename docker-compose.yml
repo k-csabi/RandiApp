@@ -21,7 +21,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/randiappdb
       SPRING_DATASOURCE_USERNAME: username
-      SPRING_DATASOURCE_PASSWORD: admin
+      SPRING_DATASOURCE_PASSWORD: password
     depends_on:
       - db
 
